@@ -12,10 +12,8 @@
       width: 100%; padding: 9px 10px; background: #2c2f35; border: 1px solid #444;
       color: white; border-radius: 6px; font-size: 14px;
     }
-    input:disabled { opacity: .5; }
-    .key-row { display: flex; gap: 8px; align-items: center; }
-    .key-row input { flex: 1; }
-    .btn-blue { padding: 9px 14px; background: #1e6fbf; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; white-space: nowrap; }
+    input:disabled, select:disabled { opacity: .5; }
+    .btn-blue { width: 100%; padding: 10px 14px; background: #1e6fbf; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
     .card { background: #222426; border: 1px solid #333; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
     .card-title { color: #ff6600; font-weight: bold; font-size: 14px; margin-bottom: 12px; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -27,7 +25,6 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* Device toggle buttons */
     .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .dev-btn { padding: 18px 8px; border-radius: 10px; cursor: pointer; text-align: center; font-weight: bold; font-size: 14px; border: 2px solid #444; background: #2c2f35; color: #aaa; transition: all .15s; }
     .dev-btn:active { opacity: .7; }
@@ -37,6 +34,8 @@
     .dev-btn .fld { display: block; font-size: 10px; font-weight: normal; margin-top: 2px; color: #666; }
     .dev-btn.on { background: #1a3d2b; border-color: #1a9e4a; color: #1a9e4a; }
     .dev-btn.off { background: #2c1f1f; border-color: #6b2a24; color: #c0392b; }
+
+    .lock-banner { display: none; background: #3a2010; border: 1px solid #f5a623; border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: 12px; color: #f5a623; text-align: center; }
 
     .auto-banner { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; text-align: center; font-weight: bold; }
     .auto-on  { background: #1a3d2b; border: 1px solid #1a9e4a; color: #1a9e4a; }
@@ -57,7 +56,7 @@
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     .status-box { font-size: 12px; margin-top: 8px; min-height: 16px; text-align: center; color: #aaa; }
-    .log-box { background: #111; border: 1px solid #333; border-radius: 6px; padding: 10px; font-size: 11px; max-height: 120px; overflow-y: auto; color: #73bf69; font-family: monospace; margin-top: 8px; }
+    .log-box { background: #111; border: 1px solid #333; border-radius: 6px; padding: 10px; font-size: 11px; max-height: 110px; overflow-y: auto; color: #73bf69; font-family: monospace; margin-top: 8px; }
     .log-err { color: #e74c3c; }
 
     #clock { text-align: center; font-size: 26px; font-weight: bold; color: white; letter-spacing: 2px; }
@@ -70,91 +69,27 @@
   <div id="clock">00:00:00</div>
   <div id="date-disp">--</div>
 
-  <!-- Settings -->
+  <!-- Settings (one card per greenhouse, each with its own channel) -->
   <div class="card">
-    <h3>⚙️ ตั้งค่า Channel</h3>
+    <h3>📡 Field เซนเซอร์ (ใช้ร่วมกันทั้งสองโรงเรือน)</h3>
     <div class="row2">
-      <div>
-        <label>Write API Key</label>
-        <input type="text" id="write-key" placeholder="Write Key">
-      </div>
-      <div>
-        <label>Read API Key</label>
-        <input type="text" id="read-key" placeholder="Read Key">
-      </div>
+      <div><label>🌡️ อุณหภูมิ อ่านจาก</label><select id="temp-field"></select></div>
+      <div><label>💧 ความชื้น อ่านจาก</label><select id="hum-field"></select></div>
     </div>
-    <label>Channel ID</label>
-    <input type="text" id="channel-id" placeholder="Channel ID">
-    <div class="row2">
-      <div>
-        <label>🌡️ อุณหภูมิ อ่านจาก</label>
-        <select id="temp-field"></select>
-      </div>
-      <div>
-        <label>💧 ความชื้น อ่านจาก</label>
-        <select id="hum-field"></select>
-      </div>
-    </div>
-    <div class="key-row" style="margin-top:10px;">
-      <div id="settings-status" style="flex:1;font-size:11px;color:#f5a623;min-height:14px;"></div>
-      <button class="btn-blue" onclick="saveSettings()">💾 บันทึก</button>
-    </div>
-    <div class="hint">ปุ่มควบคุมใช้ Field 1–4 เป็นเอาต์พุต ควรเลือก Field เซนเซอร์เป็น 5–8 เพื่อไม่ให้ชนกัน</div>
+    <div class="hint">เลือกครั้งเดียว ใช้กับ Channel ของทั้งโรงเรือน 1 และ 2</div>
   </div>
 
-  <!-- Tabs -->
+  <div id="settings-cards"></div>
+  <button class="btn-blue" onclick="saveSettings()">💾 บันทึกการตั้งค่าทั้งสองโรงเรือน</button>
+  <div id="settings-status" style="font-size:11px;color:#f5a623;margin:6px 0 14px;min-height:14px;text-align:center;"></div>
+
   <div class="tabs">
     <button class="tab-btn active" id="tab-btn-manual" onclick="switchTab('manual')">🕹️ Manual</button>
     <button class="tab-btn" id="tab-btn-auto" onclick="switchTab('auto')">🤖 Auto</button>
   </div>
 
-  <!-- Manual -->
-  <div class="tab-content active" id="tab-manual">
-    <div class="card">
-      <div class="card-title">🕹️ ควบคุมแบบกดเอง (กดสลับ เปิด 5 / ปิด 2)</div>
-      <div id="lock-banner" style="display:none;background:#3a2010;border:1px solid #f5a623;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#f5a623;text-align:center;">
-        🔒 ล็อคอยู่ — Auto กำลังทำงาน กรุณาหยุด Auto ก่อน
-      </div>
-      <div class="dev-grid" id="dev-grid"></div>
-      <div class="status-box" id="manual-status"></div>
-    </div>
-  </div>
-
-  <!-- Auto -->
-  <div class="tab-content" id="tab-auto">
-    <div class="card">
-      <div class="card-title">🤖 ควบคุมอัตโนมัติ (อ่านค่าทุก 15 วินาที)</div>
-      <div class="auto-banner auto-off" id="auto-banner">⏹ Auto ยังไม่ได้เริ่ม</div>
-
-      <div class="sensor-grid">
-        <div class="sensor-box"><div class="sensor-val" id="temp-val">—</div><div class="sensor-label">🌡️ อุณหภูมิ (°C)</div></div>
-        <div class="sensor-box"><div class="sensor-val" id="hum-val">—</div><div class="sensor-label">💧 ความชื้น (%)</div></div>
-      </div>
-
-      <div class="thresh-card">
-        <div class="thresh-title">💨 พ่นหมอก 1 &amp; 2 ตามความชื้น</div>
-        <div class="row2">
-          <div><label>เปิดเมื่อความชื้น ≤</label><input type="number" id="hum-on" value="60" step="0.1"></div>
-          <div><label>ปิดเมื่อความชื้น ≥</label><input type="number" id="hum-off" value="80" step="0.1"></div>
-        </div>
-      </div>
-      <div class="thresh-card">
-        <div class="thresh-title">🌀 พัดลม 1 &amp; 2 ตามอุณหภูมิ</div>
-        <div class="row2">
-          <div><label>เปิดเมื่ออุณหภูมิ ≥</label><input type="number" id="temp-on" value="32" step="0.1"></div>
-          <div><label>ปิดเมื่ออุณหภูมิ ≤</label><input type="number" id="temp-off" value="28" step="0.1"></div>
-        </div>
-      </div>
-
-      <div class="btn-grid">
-        <button class="btn-action btn-green" id="btn-start-auto" onclick="startAuto()">▶ เริ่ม Auto</button>
-        <button class="btn-action btn-red" id="btn-stop-auto" onclick="stopAuto()" disabled>⏹ หยุด Auto</button>
-      </div>
-      <div class="hint" id="countdown">ตรวจสอบรอบถัดไป: —</div>
-      <div class="status-box" id="auto-status"></div>
-      <div class="log-box" id="log"><span style="color:#555">รอการทำงาน...</span></div>
-    </div>
-  </div>
+  <div class="tab-content active" id="tab-manual"><div id="manual-cards"></div></div>
+  <div class="tab-content" id="tab-auto"><div id="auto-cards"></div></div>
 
   <div class="watermark">
     พัฒนาโดย<br>
@@ -163,90 +98,132 @@
   </div>
 
 <script>
-  const STORAGE_KEY = "mist_fan_settings";
-  const CHECK_SEC = 15;      // ล็อค 15 วินาที (ขีดจำกัดการเขียนของ ThingSpeak)
+  const STORAGE_KEY = "mist_fan_2gh_settings";
+  const CHECK_SEC = 15;         // ล็อค 15 วินาที (ขีดจำกัดการเขียนของ ThingSpeak ต่อชาเนล)
   const ON_VAL = 5, OFF_VAL = 2;
+  const FIELD_IDS = ['write-key','read-key','channel-id','mist-field','fan-field','hum-on','hum-off','temp-on','temp-off'];
 
-  // สมมติฐาน: พัดลม 1 → Field 3, พัดลม 2 → Field 4
-  const DEVICES = [
-    { id: 'mist1', label: 'พ่นหมอก โซน 1', icon: '💨', field: 1 },
-    { id: 'mist2', label: 'พ่นหมอก โซน 2', icon: '💨', field: 2 },
-    { id: 'fan1',  label: 'พัดลม โซน 1',   icon: '🌀', field: 3 },
-    { id: 'fan2',  label: 'พัดลม โซน 2',   icon: '🌀', field: 4 },
-  ];
-  const state = { mist1: OFF_VAL, mist2: OFF_VAL, fan1: OFF_VAL, fan2: OFF_VAL };
+  // โรงเรือน 1 และ 2 ใช้คนละชาเนล — แต่ละแห่งมีพ่นหมอก 1 ตัว พัดลม 1 ตัว
+  const GH = [1, 2].map(n => ({ n, mist: OFF_VAL, fan: OFF_VAL, running: false, timer: null, cdTimer: null, cd: CHECK_SEC }));
 
-  let autoRunning = false, autoTimer = null, countdownTimer = null, countdownVal = CHECK_SEC;
+  const el = id => document.getElementById(id);
+  const fieldOpts = sel => [1,2,3,4,5,6,7,8].map(i => `<option value="${i}" ${i === sel ? 'selected' : ''}>Field ${i}</option>`).join('');
 
   // ===== Clock =====
   setInterval(() => {
     const now = new Date();
-    document.getElementById("clock").innerText =
-      [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
-    document.getElementById("date-disp").innerText =
-      now.toLocaleDateString('th-TH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    el("clock").innerText = [now.getHours(), now.getMinutes(), now.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+    el("date-disp").innerText = now.toLocaleDateString('th-TH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
   }, 1000);
 
-  // ===== Init =====
+  // ===== Build UI =====
+  function build() {
+    el('temp-field').innerHTML = fieldOpts(5);
+    el('hum-field').innerHTML = fieldOpts(6);
+    GH.forEach(g => {
+      const n = g.n;
+      el('settings-cards').insertAdjacentHTML('beforeend', `
+        <div class="card">
+          <h3>🏠 โรงเรือน ${n} — ตั้งค่า Channel</h3>
+          <div class="row2">
+            <div><label>Write API Key</label><input type="text" id="write-key-${n}" placeholder="Write Key"></div>
+            <div><label>Read API Key</label><input type="text" id="read-key-${n}" placeholder="Read Key"></div>
+          </div>
+          <label>Channel ID</label>
+          <input type="text" id="channel-id-${n}" placeholder="Channel ID">
+          <div class="row2">
+            <div><label>💨 ส่งพ่นหมอกไป</label><select id="mist-field-${n}" onchange="renderAll()">${fieldOpts(1)}</select></div>
+            <div><label>🌀 ส่งพัดลมไป</label><select id="fan-field-${n}" onchange="renderAll()">${fieldOpts(2)}</select></div>
+          </div>
+        </div>`);
+
+      el('manual-cards').insertAdjacentHTML('beforeend', `
+        <div class="card">
+          <div class="card-title">🏠 โรงเรือน ${n} — กดเอง (เปิด 5 / ปิด 2)</div>
+          <div class="lock-banner" id="lock-${n}">🔒 ล็อคอยู่ — Auto โรงเรือน ${n} กำลังทำงาน</div>
+          <div class="dev-grid">
+            <button class="dev-btn off" id="btn-mist-${n}" onclick="toggleDev(${n},'mist')"></button>
+            <button class="dev-btn off" id="btn-fan-${n}" onclick="toggleDev(${n},'fan')"></button>
+          </div>
+          <div class="status-box" id="manual-status-${n}"></div>
+        </div>`);
+
+      el('auto-cards').insertAdjacentHTML('beforeend', `
+        <div class="card">
+          <div class="card-title">🏠 โรงเรือน ${n} — ควบคุมอัตโนมัติ (ทุก 15 วินาที)</div>
+          <div class="auto-banner auto-off" id="auto-banner-${n}">⏹ Auto ยังไม่ได้เริ่ม</div>
+          <div class="sensor-grid">
+            <div class="sensor-box"><div class="sensor-val" id="temp-val-${n}">—</div><div class="sensor-label">🌡️ อุณหภูมิ (°C)</div></div>
+            <div class="sensor-box"><div class="sensor-val" id="hum-val-${n}">—</div><div class="sensor-label">💧 ความชื้น (%)</div></div>
+          </div>
+          <div class="thresh-card">
+            <div class="thresh-title">💨 พ่นหมอก ตามความชื้น</div>
+            <div class="row2">
+              <div><label>เปิดเมื่อความชื้น ≤</label><input type="number" id="hum-on-${n}" value="60" step="0.1"></div>
+              <div><label>ปิดเมื่อความชื้น ≥</label><input type="number" id="hum-off-${n}" value="80" step="0.1"></div>
+            </div>
+          </div>
+          <div class="thresh-card">
+            <div class="thresh-title">🌀 พัดลม ตามอุณหภูมิ</div>
+            <div class="row2">
+              <div><label>เปิดเมื่ออุณหภูมิ ≥</label><input type="number" id="temp-on-${n}" value="32" step="0.1"></div>
+              <div><label>ปิดเมื่ออุณหภูมิ ≤</label><input type="number" id="temp-off-${n}" value="28" step="0.1"></div>
+            </div>
+          </div>
+          <div class="btn-grid">
+            <button class="btn-action btn-green" id="btn-start-${n}" onclick="startAuto(${n})">▶ เริ่ม Auto</button>
+            <button class="btn-action btn-red" id="btn-stop-${n}" onclick="stopAuto(${n})" disabled>⏹ หยุด Auto</button>
+          </div>
+          <div class="hint" id="countdown-${n}">ตรวจสอบรอบถัดไป: —</div>
+          <div class="status-box" id="auto-status-${n}"></div>
+          <div class="log-box" id="log-${n}"><span style="color:#555">รอการทำงาน...</span></div>
+        </div>`);
+    });
+  }
+
   window.onload = function () {
-    ['temp-field', 'hum-field'].forEach((id, idx) => {
-      const sel = document.getElementById(id);
-      for (let i = 1; i <= 8; i++) sel.add(new Option('Field ' + i, i));
-      sel.value = idx === 0 ? 5 : 6; // ค่าเริ่มต้น: อุณหภูมิ Field 5, ความชื้น Field 6
-    });
-
-    const grid = document.getElementById('dev-grid');
-    DEVICES.forEach(d => {
-      const b = document.createElement('button');
-      b.className = 'dev-btn off';
-      b.id = 'btn-' + d.id;
-      b.onclick = () => toggleDevice(d.id);
-      grid.appendChild(b);
-    });
-    DEVICES.forEach(d => renderDevice(d.id));
-
+    build();
+    renderAll();
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const s = JSON.parse(saved);
-      ['write-key','read-key','channel-id','temp-field','hum-field','hum-on','hum-off','temp-on','temp-off'].forEach(id => {
-        const key = id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-        if (s[key] !== undefined && s[key] !== "") document.getElementById(id).value = s[key];
-      });
-      document.getElementById("settings-status").innerText = "✅ โหลดค่าที่บันทึกไว้";
+      Object.keys(s).forEach(id => { if (el(id) && s[id] !== "") el(id).value = s[id]; });
+      renderAll();
+      el("settings-status").innerText = "✅ โหลดค่าที่บันทึกไว้";
     }
   };
 
   function saveSettings() {
-    const ids = ['write-key','read-key','channel-id','temp-field','hum-field','hum-on','hum-off','temp-on','temp-off'];
     const s = {};
-    ids.forEach(id => {
-      const key = id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-      s[key] = document.getElementById(id).value.trim();
-    });
+    GH.forEach(g => FIELD_IDS.forEach(b => { const id = `${b}-${g.n}`; s[id] = el(id).value.trim(); }));
+    s['temp-field'] = el('temp-field').value;
+    s['hum-field'] = el('hum-field').value;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    document.getElementById("settings-status").innerText = "✅ บันทึกแล้ว";
-  }
-
-  function cfg() {
-    return {
-      writeKey:  document.getElementById("write-key").value.trim(),
-      readKey:   document.getElementById("read-key").value.trim(),
-      channelId: document.getElementById("channel-id").value.trim(),
-      tempField: document.getElementById("temp-field").value,
-      humField:  document.getElementById("hum-field").value,
-    };
+    el("settings-status").innerText = "✅ บันทึกแล้ว";
   }
 
   function switchTab(tab) {
     ['manual','auto'].forEach(t => {
-      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-      document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+      el('tab-' + t).classList.toggle('active', t === tab);
+      el('tab-btn-' + t).classList.toggle('active', t === tab);
     });
   }
 
-  // ===== ThingSpeak =====
-  function sendFields(fields, cb) {
-    const key = cfg().writeKey;
+  function cfg(n) {
+    return {
+      writeKey:  el(`write-key-${n}`).value.trim(),
+      readKey:   el(`read-key-${n}`).value.trim(),
+      channelId: el(`channel-id-${n}`).value.trim(),
+      tempField: el('temp-field').value,
+      humField:  el('hum-field').value,
+      mistField: el(`mist-field-${n}`).value,
+      fanField:  el(`fan-field-${n}`).value,
+    };
+  }
+
+  // ===== ThingSpeak (แต่ละโรงเรือนใช้คีย์/ชาเนลของตัวเอง) =====
+  function sendFields(n, fields, cb) {
+    const key = cfg(n).writeKey;
     if (!key) { cb(false, "ไม่มี Write API Key"); return; }
     const params = new URLSearchParams({ api_key: key });
     Object.keys(fields).forEach(k => params.append(k, fields[k]));
@@ -256,8 +233,8 @@
       .catch(e => cb(false, e));
   }
 
-  async function readSensors() {
-    const c = cfg();
+  async function readSensors(n) {
+    const c = cfg(n);
     if (!c.readKey || !c.channelId) return null;
     try {
       const res = await fetch(`https://api.thingspeak.com/channels/${c.channelId}/feeds/last.json?api_key=${c.readKey}`);
@@ -268,8 +245,8 @@
     } catch (e) { return null; }
   }
 
-  function addLog(msg, isErr = false) {
-    const log = document.getElementById("log");
+  function addLog(n, msg, isErr = false) {
+    const log = el(`log-${n}`);
     const div = document.createElement("div");
     div.className = isErr ? "log-err" : "";
     div.innerText = `[${new Date().toLocaleTimeString('th-TH')}] ${msg}`;
@@ -278,122 +255,121 @@
   }
 
   // ===== Manual =====
-  function renderDevice(id) {
-    const d = DEVICES.find(x => x.id === id);
-    const on = state[id] === ON_VAL;
-    const b = document.getElementById('btn-' + id);
+  const DEV = { mist: { label: 'พ่นหมอก', icon: '💨' }, fan: { label: 'พัดลม', icon: '🌀' } };
+
+  function renderDev(g, type) {
+    const on = g[type] === ON_VAL;
+    const b = el(`btn-${type}-${g.n}`);
     b.className = 'dev-btn ' + (on ? 'on' : 'off');
-    b.innerHTML = `<span class="icon">${d.icon}</span>${d.label}<span class="state">${on ? 'เปิด' : 'ปิด'} (${state[id]})</span><span class="fld">Field ${d.field}</span>`;
+    b.innerHTML = `<span class="icon">${DEV[type].icon}</span>${DEV[type].label}<span class="state">${on ? 'เปิด' : 'ปิด'} (${g[type]})</span><span class="fld">Field ${cfg(g.n)[type + 'Field']}</span>`;
+  }
+  function renderAll() { GH.forEach(g => { renderDev(g, 'mist'); renderDev(g, 'fan'); }); }
+
+  function setManualLock(n, locked) {
+    el(`btn-mist-${n}`).disabled = locked;
+    el(`btn-fan-${n}`).disabled = locked;
+    el(`lock-${n}`).style.display = locked ? 'block' : 'none';
   }
 
-  function setManualLock(locked) {
-    DEVICES.forEach(d => document.getElementById('btn-' + d.id).disabled = locked);
-    document.getElementById('lock-banner').style.display = locked ? 'block' : 'none';
-  }
+  function toggleDev(n, type) {
+    const g = GH[n - 1];
+    if (g.running) return;
+    const c = cfg(n);
+    const ms = el(`manual-status-${n}`);
+    if (!c.writeKey) { ms.innerText = "❌ กรุณาใส่ Write API Key ของโรงเรือนนี้ก่อน"; ms.style.color = "#e74c3c"; return; }
 
-  function toggleDevice(id) {
-    if (autoRunning) return;
-    const c = cfg();
-    const ms = document.getElementById('manual-status');
-    if (!c.writeKey || !c.channelId) { ms.innerText = "❌ กรุณาใส่ Write API Key และ Channel ID ก่อน"; ms.style.color = "#e74c3c"; return; }
-
-    const d = DEVICES.find(x => x.id === id);
-    const newVal = state[id] === ON_VAL ? OFF_VAL : ON_VAL;
-    const btn = document.getElementById('btn-' + id);
+    const field = c[type + 'Field'];
+    const newVal = g[type] === ON_VAL ? OFF_VAL : ON_VAL;
+    const btn = el(`btn-${type}-${n}`);
     btn.disabled = true;
     ms.innerText = "กำลังส่ง..."; ms.style.color = "#aaa";
 
-    sendFields({ ['field' + d.field]: newVal }, (ok, res) => {
-      btn.disabled = autoRunning;
+    sendFields(n, { ['field' + field]: newVal }, (ok, res) => {
+      btn.disabled = g.running;
       if (ok) {
-        state[id] = newVal;
-        renderDevice(id);
-        ms.innerText = `✅ ${d.label}: field${d.field}=${newVal} (Entry: ${res})`; ms.style.color = "#73bf69";
+        g[type] = newVal;
+        renderDev(g, type);
+        ms.innerText = `✅ ${DEV[type].label}: field${field}=${newVal} (Entry: ${res})`; ms.style.color = "#73bf69";
       } else {
         ms.innerText = `❌ ส่งไม่สำเร็จ: ${res} (อาจติด rate limit 15 วิ)`; ms.style.color = "#e74c3c";
       }
     });
   }
 
-  // ===== Auto =====
-  function setAutoStatus(msg, color) {
-    const el = document.getElementById("auto-status");
-    el.innerText = msg; el.style.color = color;
-  }
+  // ===== Auto (แยกอิสระต่อโรงเรือน) =====
+  function setAutoStatus(n, msg, color) { const e = el(`auto-status-${n}`); e.innerText = msg; e.style.color = color; }
+  const THRESH_IDS = n => [`hum-on-${n}`, `hum-off-${n}`, `temp-on-${n}`, `temp-off-${n}`];
 
-  function startAuto() {
-    const c = cfg();
-    if (!c.writeKey || !c.readKey || !c.channelId) { setAutoStatus("❌ กรุณาใส่ Write Key, Read Key และ Channel ID", "#e74c3c"); return; }
+  function startAuto(n) {
+    const g = GH[n - 1];
+    const c = cfg(n);
+    if (!c.writeKey || !c.readKey || !c.channelId) { setAutoStatus(n, "❌ กรุณาใส่ Write Key, Read Key และ Channel ID ของโรงเรือนนี้", "#e74c3c"); return; }
 
-    const humOn = parseFloat(document.getElementById('hum-on').value);
-    const humOff = parseFloat(document.getElementById('hum-off').value);
-    const tempOn = parseFloat(document.getElementById('temp-on').value);
-    const tempOff = parseFloat(document.getElementById('temp-off').value);
-    if ([humOn, humOff, tempOn, tempOff].some(isNaN)) { setAutoStatus("❌ กรุณากรอกค่าเปิด/ปิดให้ครบ", "#e74c3c"); return; }
-    if (humOn >= humOff) { setAutoStatus("❌ ความชื้น: ค่าเปิดต้องน้อยกว่าค่าปิด", "#e74c3c"); return; }
-    if (tempOn <= tempOff) { setAutoStatus("❌ อุณหภูมิ: ค่าเปิดต้องมากกว่าค่าปิด", "#e74c3c"); return; }
-    if ([c.tempField, c.humField].some(f => parseInt(f) <= 4)) {
-      addLog("⚠ Field เซนเซอร์ที่เลือกเป็น Field 1–4 ซึ่งชนกับเอาต์พุตควบคุม", true);
+    const humOn = parseFloat(el(`hum-on-${n}`).value), humOff = parseFloat(el(`hum-off-${n}`).value);
+    const tempOn = parseFloat(el(`temp-on-${n}`).value), tempOff = parseFloat(el(`temp-off-${n}`).value);
+    if ([humOn, humOff, tempOn, tempOff].some(isNaN)) { setAutoStatus(n, "❌ กรุณากรอกค่าเปิด/ปิดให้ครบ", "#e74c3c"); return; }
+    if (humOn >= humOff) { setAutoStatus(n, "❌ ความชื้น: ค่าเปิดต้องน้อยกว่าค่าปิด", "#e74c3c"); return; }
+    if (tempOn <= tempOff) { setAutoStatus(n, "❌ อุณหภูมิ: ค่าเปิดต้องมากกว่าค่าปิด", "#e74c3c"); return; }
+    if (c.tempField === c.humField) { setAutoStatus(n, "❌ Field อุณหภูมิและความชื้นต้องไม่ซ้ำกัน", "#e74c3c"); return; }
+    if ([c.tempField, c.humField].some(f => f === c.mistField || f === c.fanField)) {
+      addLog(n, "⚠ Field เซนเซอร์ชนกับ Field เอาต์พุต (พ่นหมอก/พัดลม)", true);
     }
 
-    // INTERLOCK: ล็อคปุ่ม Manual ระหว่าง Auto
-    autoRunning = true;
-    setManualLock(true);
-    document.getElementById('btn-start-auto').disabled = true;
-    document.getElementById('btn-stop-auto').disabled = false;
-    ['hum-on','hum-off','temp-on','temp-off'].forEach(id => document.getElementById(id).disabled = true);
-    const banner = document.getElementById('auto-banner');
+    // INTERLOCK: ล็อคปุ่ม Manual ของโรงเรือนนี้ระหว่าง Auto (อีกโรงเรือนไม่ได้รับผลกระทบ)
+    g.running = true;
+    setManualLock(n, true);
+    el(`btn-start-${n}`).disabled = true;
+    el(`btn-stop-${n}`).disabled = false;
+    THRESH_IDS(n).forEach(id => el(id).disabled = true);
+    const banner = el(`auto-banner-${n}`);
     banner.className = 'auto-banner auto-on'; banner.innerText = '🟢 Auto กำลังทำงาน...';
-    addLog(`▶ เริ่ม Auto | หมอก: เปิด ≤${humOn} ปิด ≥${humOff} | พัดลม: เปิด ≥${tempOn} ปิด ≤${tempOff}`);
+    addLog(n, `▶ เริ่ม Auto | หมอก: เปิด ≤${humOn} ปิด ≥${humOff} | พัดลม: เปิด ≥${tempOn} ปิด ≤${tempOff}`);
 
     const run = async () => {
-      resetCountdown();
-      const s = await readSensors();
-      if (!s || s.temp === null || s.hum === null) { addLog("❌ อ่านค่าอุณหภูมิ/ความชื้นไม่ได้", true); setAutoStatus("❌ อ่านค่า Sensor ไม่ได้", "#e74c3c"); return; }
-      document.getElementById('temp-val').innerText = s.temp;
-      document.getElementById('hum-val').innerText = s.hum;
+      g.cd = CHECK_SEC;
+      const s = await readSensors(n);
+      if (!s || s.temp === null || s.hum === null) { addLog(n, "❌ อ่านค่าอุณหภูมิ/ความชื้นไม่ได้", true); setAutoStatus(n, "❌ อ่านค่า Sensor ไม่ได้", "#e74c3c"); return; }
+      el(`temp-val-${n}`).innerText = s.temp;
+      el(`hum-val-${n}`).innerText = s.hum;
 
       // Hysteresis: ระหว่างค่าเปิด-ปิด คงสถานะเดิม
-      let mist = state.mist1;
+      let mist = g.mist, fan = g.fan;
       if (s.hum <= humOn) mist = ON_VAL; else if (s.hum >= humOff) mist = OFF_VAL;
-      let fan = state.fan1;
       if (s.temp >= tempOn) fan = ON_VAL; else if (s.temp <= tempOff) fan = OFF_VAL;
 
-      // ส่งทั้ง 4 field ในคำขอเดียว กันชน rate limit
-      sendFields({ field1: mist, field2: mist, field3: fan, field4: fan }, (ok, res) => {
+      // ส่งพ่นหมอก+พัดลมในคำขอเดียว กันชน rate limit
+      sendFields(n, { ['field' + c.mistField]: mist, ['field' + c.fanField]: fan }, (ok, res) => {
         if (ok) {
-          state.mist1 = state.mist2 = mist;
-          state.fan1 = state.fan2 = fan;
-          DEVICES.forEach(d => renderDevice(d.id));
-          addLog(`T=${s.temp} H=${s.hum} → หมอก=${mist} พัดลม=${fan} (Entry: ${res})`);
-          setAutoStatus(`🌡️ ${s.temp}°C • 💧 ${s.hum}% → หมอก ${mist === ON_VAL ? 'เปิด' : 'ปิด'} • พัดลม ${fan === ON_VAL ? 'เปิด' : 'ปิด'}`, "#73bf69");
+          g.mist = mist; g.fan = fan;
+          renderDev(g, 'mist'); renderDev(g, 'fan');
+          addLog(n, `T=${s.temp} H=${s.hum} → หมอก=${mist} พัดลม=${fan} (Entry: ${res})`);
+          setAutoStatus(n, `🌡️ ${s.temp}°C • 💧 ${s.hum}% → หมอก ${mist === ON_VAL ? 'เปิด' : 'ปิด'} • พัดลม ${fan === ON_VAL ? 'เปิด' : 'ปิด'}`, "#73bf69");
         } else {
-          addLog(`❌ ส่งค่าไม่สำเร็จ: ${res}`, true);
+          addLog(n, `❌ ส่งค่าไม่สำเร็จ: ${res}`, true);
         }
       });
     };
 
     run();
-    autoTimer = setInterval(run, CHECK_SEC * 1000);
-    countdownTimer = setInterval(() => {
-      countdownVal = Math.max(countdownVal - 1, 0);
-      document.getElementById('countdown').innerText = `ตรวจสอบรอบถัดไปใน ${countdownVal} วิ`;
+    g.timer = setInterval(run, CHECK_SEC * 1000);
+    g.cdTimer = setInterval(() => {
+      g.cd = Math.max(g.cd - 1, 0);
+      el(`countdown-${n}`).innerText = `ตรวจสอบรอบถัดไปใน ${g.cd} วิ`;
     }, 1000);
   }
 
-  function resetCountdown() { countdownVal = CHECK_SEC; }
-
-  function stopAuto() {
-    autoRunning = false;
-    clearInterval(autoTimer); clearInterval(countdownTimer);
-    setManualLock(false);
-    document.getElementById('btn-start-auto').disabled = false;
-    document.getElementById('btn-stop-auto').disabled = true;
-    ['hum-on','hum-off','temp-on','temp-off'].forEach(id => document.getElementById(id).disabled = false);
-    const banner = document.getElementById('auto-banner');
+  function stopAuto(n) {
+    const g = GH[n - 1];
+    g.running = false;
+    clearInterval(g.timer); clearInterval(g.cdTimer);
+    setManualLock(n, false);
+    el(`btn-start-${n}`).disabled = false;
+    el(`btn-stop-${n}`).disabled = true;
+    THRESH_IDS(n).forEach(id => el(id).disabled = false);
+    const banner = el(`auto-banner-${n}`);
     banner.className = 'auto-banner auto-off'; banner.innerText = '⏹ Auto หยุดแล้ว (คงสถานะล่าสุดไว้)';
-    document.getElementById('countdown').innerText = 'ตรวจสอบรอบถัดไป: —';
-    addLog("⏹ หยุด Auto — ปุ่ม Manual ใช้งานได้อีกครั้ง");
+    el(`countdown-${n}`).innerText = 'ตรวจสอบรอบถัดไป: —';
+    addLog(n, "⏹ หยุด Auto — ปุ่ม Manual ใช้งานได้อีกครั้ง");
   }
 </script>
 </body>
